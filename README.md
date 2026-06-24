@@ -8,7 +8,7 @@ A local-first AI lab starter for learning provider integration, model switching,
 
 The goal is educational: this project helps you inspect how provider integration, model switching, prompt/context/memory scaffolding, usage logging, provider error handling, and server-side API key safety can fit together in a small codebase.
 
-This is not a production SaaS and not a ChatGPT replacement. It is a readable starter for learning, experimentation, and adaptation.
+This is not intended to be a production SaaS, hosted assistant service, or end-user chatbot product. It is a readable starter for learning, experimentation, and adaptation.
 
 The default path should be safe for local development: start in mock mode, use fake data, keep provider secrets server-side, and inspect sanitized debug output before connecting any real provider.
 
@@ -197,7 +197,7 @@ Platform-specific deployment should be configured carefully. Do not publish admi
 
 - Not a production SaaS
 - Not a hosted AI service
-- Not a ChatGPT replacement
+- Not a hosted assistant service or end-user chatbot product
 - Not a full memory framework yet
 - Not a model marketplace
 - Not a complete deployment security solution
