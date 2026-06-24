@@ -1,0 +1,17 @@
+{
+  "name": "local-ai-lab-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A local-first AI lab starter for learning provider integration, model switching, prompt/context/memory scaffolding, usage logging, and server-side API key safety.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Local AI Lab Starter</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>Local AI Lab Starter</h1>
+          <p class="status-pill">local-only prototype</p>
+        </div>
+        <div id="debugStatus" class="debug-status" aria-live="polite">
+          Local backend ready · Checking AI config
+        </div>
+      </header>
+
+      <section class="dashboard-layout" aria-label="Local AI Lab Starter dashboard">
+        <section class="chat-main dashboard-card" aria-labelledby="messages-title">
+          <div class="panel-heading">
+            <h2 id="messages-title">Chat Main</h2>
+            <p>Main chat area for local testing and provider responses.</p>
+          </div>
+
+          <div id="messageArea" class="message-area" aria-live="polite">
+            <article class="message system-message">
+              <p>This is a local-first AI lab starter. Messages are handled according to the current server-side AI settings; use fake data while testing.</p>
+            </article>
+          </div>
+
+          <form id="chatForm" class="composer">
+            <label for="messageInput">Message</label>
+            <textarea
+              id="messageInput"
+              name="message"
+              rows="4"
+              placeholder="Type a local test message..."
+            ></textarea>
+            <button type="submit">Send</button>
+          </form>
+
+          <div id="retryPanel" class="retry-panel" hidden>
+            <button id="retryLastMessageButton" class="retry-button" type="button">
+              Retry last message
+            </button>
+            <p>Provider may be temporarily unavailable. You can retry manually.</p>
+          </div>
+        </section>
+
+        <aside class="house-state" aria-label="House State">
+          <section class="sticky-card dashboard-card" aria-labelledby="sticky-title">
+            <div class="panel-heading">
+              <h2 id="sticky-title">Sticky Note</h2>
+              <p id="stickyStatus" class="sticky-status" aria-live="polite">
+                Sticky Note loads from local SQLite
+              </p>
+            </div>
+            <textarea
+              id="stickyNote"
+              rows="10"
+              placeholder="Sticky note content is saved in local SQLite."
+            ></textarea>
+          </section>
+
+          <section class="local-debug dashboard-card" aria-labelledby="local-debug-title">
+            <div class="panel-heading">
+              <h2 id="local-debug-title">House State</h2>
+              <p>Local runtime status for development checks.</p>
+            </div>
+            <dl class="debug-grid">
+              <div>
+                <dt>Provider Status</dt>
+                <dd id="debugAiApi">checking</dd>
+              </div>
+              <div>
+                <dt>AI Enabled</dt>
+                <dd id="debugAiEnabled">false</dd>
+              </div>
+              <div>
+                <dt>Provider</dt>
+                <dd id="debugAiProvider">mock</dd>
+              </div>
+              <div>
+                <dt>Model</dt>
+                <dd id="debugAiModel">not-connected</dd>
+              </div>
+              <div>
+                <dt>API Key Present</dt>
+                <dd id="debugApiKeyPresent">false</dd>
+              </div>
+              <div>
+                <dt>Last External Call</dt>
+                <dd id="debugExternalApiCalled">none yet</dd>
+              </div>
+              <div>
+                <dt>Messages</dt>
+                <dd id="debugMessageCount">0</dd>
+              </div>
+              <div>
+                <dt>Sticky Note</dt>
+                <dd id="debugStickyState">loading</dd>
+              </div>
+              <div>
+                <dt>Sticky Updated</dt>
+                <dd id="debugStickyUpdated">-</dd>
+              </div>
+              <div>
+                <dt>Usage Events</dt>
+                <dd id="debugUsageEventCount">0</dd>
+              </div>
+            </dl>
+            <div class="model-switch-card" aria-labelledby="model-switch-title">
+              <div class="model-switch-heading">
+                <h3 id="model-switch-title">Model Switch</h3>
+                <p id="modelSwitchStatus">Loading server-side model list...</p>
+              </div>
+              <label for="modelSelect">Selected Model</label>
+              <select id="modelSelect" disabled>
+                <option value="">Loading models...</option>
+              </select>
+              <dl class="debug-grid compact-debug-grid">
+                <div>
+                  <dt>Provider</dt>
+                  <dd id="modelProvider">loading</dd>
+                </div>
+                <div>
+                  <dt>Default Model</dt>
+                  <dd id="modelDefault">loading</dd>
+                </div>
+                <div>
+                  <dt>Allowed Models</dt>
+                  <dd id="modelAllowedCount">0</dd>
+                </div>
+                <div>
+                  <dt>Selected Model</dt>
+                  <dd id="modelSelected">none</dd>
+                </div>
+                <div>
+                  <dt>Selected Model Supported</dt>
+                  <dd id="modelSelectedSupported">false</dd>
+                </div>
+                <div>
+                  <dt>Default Model Valid</dt>
+                  <dd id="modelDefaultValid">unknown</dd>
+                </div>
+                <div>
+                  <dt>Warnings</dt>
+                  <dd id="modelWarnings">loading</dd>
+                </div>
+              </dl>
+            </div>
+            <div class="usage-summary" aria-labelledby="usage-summary-title">
+              <h3 id="usage-summary-title">Usage Summary</h3>
+              <dl class="debug-grid compact-debug-grid">
+                <div>
+                  <dt>Provider</dt>
+                  <dd id="usageProvider">mock</dd>
+                </div>
+                <div>
+                  <dt>Events</dt>
+                  <dd id="usageEventCount">0</dd>
+                </div>
+                <div>
+                  <dt>Tracking</dt>
+                  <dd id="usageAiApi">External calls tracked by usage events</dd>
+                </div>
+              </dl>
+            </div>
+            <div class="danger-tools">
+              <button id="clearMessagesButton" class="danger-button" type="button">
+                Clear test messages
+              </button>
+              <p>Clears test chat records only. Sticky Note is preserved.</p>
+            </div>
+          </section>
+        </aside>
+
+        <details class="developer-debug dashboard-card">
+          <summary>
+            <span>Developer Debug</span>
+            <span>Prompt / Context / Memory / Archive</span>
+          </summary>
+
+          <div class="developer-debug-body">
+            <section class="debug-room prompt-room" aria-labelledby="prompt-preview-title">
+              <div class="panel-heading">
+                <h2 id="prompt-preview-title">Prompt Room</h2>
+                <p>Review the assembled prompt in readable layers. Raw JSON remains available below.</p>
+              </div>
+              <div id="promptStructuredView" class="prompt-structured-view">
+                <section class="prompt-layer" aria-labelledby="prompt-system-title">
+                  <h3 id="prompt-system-title">System / Base Instruction</h3>
+                  <dl class="debug-grid compact-debug-grid">
+                    <div>
+                      <dt>Present</dt>
+                      <dd id="promptSystemPresent">unknown</dd>
+                    </div>
+                    <div>
+                      <dt>Preview</dt>
+                      <dd id="promptSystemPreview">No prompt payload yet.</dd>
+                    </div>
+                  </dl>
+                </section>
+
+                <section class="prompt-layer" aria-labelledby="prompt-sticky-title">
+                  <h3 id="prompt-sticky-title">Sticky Note Context</h3>
+                  <dl class="debug-grid compact-debug-grid">
+                    <div>
+                      <dt>Included</dt>
+                      <dd id="promptStickyIncluded">unknown</dd>
+                    </div>
+                    <div>
+                      <dt>Preview</dt>
+                      <dd id="promptStickyPreview">No prompt payload yet.</dd>
+                    </div>
+                  </dl>
+                </section>
+
+                <section class="prompt-layer" aria-labelledby="prompt-recent-title">
+                  <h3 id="prompt-recent-title">Recent Messages</h3>
+                  <dl class="debug-grid compact-debug-grid">
+                    <div>
+                      <dt>Count</dt>
+                      <dd id="promptRecentCount">0</dd>
+                    </div>
+                  </dl>
+                  <ol id="promptRecentList" class="prompt-message-list">
+                    <li>No recent messages in preview.</li>
+                  </ol>
+                </section>
+
+                <section class="prompt-layer" aria-labelledby="prompt-latest-title">
+                  <h3 id="prompt-latest-title">Latest User Message</h3>
+                  <dl class="debug-grid compact-debug-grid">
+                    <div>
+                      <dt>Included</dt>
+                      <dd id="promptLatestIncluded">unknown</dd>
+                    </div>
+                    <div>
+                      <dt>Preview</dt>
+                      <dd id="promptLatestPreview">No prompt payload yet.</dd>
+                    </div>
+                  </dl>
+                </section>
+
+                <section class="prompt-layer" aria-labelledby="prompt-summary-title">
+                  <h3 id="prompt-summary-title">Final Payload Summary</h3>
+                  <dl id="promptPayloadSummary" class="debug-grid compact-debug-grid">
+                    <div>
+                      <dt>Total Messages</dt>
+                      <dd>0</dd>
+                    </div>
+                  </dl>
+                </section>
+              </div>
+
+              <div class="raw-prompt-block">
+                <h3>Raw Prompt JSON</h3>
+                <p>Full local debug payload for deeper inspection.</p>
+              </div>
+              <pre id="promptPreview">{}</pre>
+            </section>
+
+            <section class="debug-room context-room" aria-labelledby="context-room-title">
+              <div class="panel-heading">
+                <h2 id="context-room-title">Context Room</h2>
+                <p>Summary of the sources included in this prompt, without full content.</p>
+              </div>
+              <dl id="contextSummary" class="debug-grid compact-debug-grid context-summary">
+                <div>
+                  <dt>System Message</dt>
+                  <dd>unknown</dd>
+                </div>
+                <div>
+                  <dt>Sticky Note Included</dt>
+                  <dd>unknown</dd>
+                </div>
+                <div>
+                  <dt>Preview Messages</dt>
+                  <dd>0</dd>
+                </div>
+                <div>
+                  <dt>Recent Messages</dt>
+                  <dd>0</dd>
+                </div>
+                <div>
+                  <dt>Latest User Message</dt>
+                  <dd>unknown</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="debug-room memory-room" aria-labelledby="memory-room-title">
+              <div class="panel-heading">
+                <h2 id="memory-room-title">Memory Lab</h2>
+                <p>Placeholder for future memory experiments. Nothing is enabled yet.</p>
+              </div>
+              <dl class="debug-grid compact-debug-grid">
+                <div>
+                  <dt>Memory retrieval</dt>
+                  <dd>not implemented</dd>
+                </div>
+                <div>
+                  <dt>Embeddings</dt>
+                  <dd>not implemented</dd>
+                </div>
+                <div>
+                  <dt>Long-term memory</dt>
+                  <dd>not implemented</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="debug-room archive-room" aria-labelledby="archive-room-title">
+              <div class="panel-heading">
+                <h2 id="archive-room-title">Archive</h2>
+                <p>SQLite message archive. Stored records are not memory retrieval.</p>
+              </div>
+              <dl class="debug-grid compact-debug-grid">
+                <div>
+                  <dt>Stored Messages</dt>
+                  <dd id="archiveMessageCount">0</dd>
+                </div>
+                <div>
+                  <dt>Archive Type</dt>
+                  <dd>SQLite messages</dd>
+                </div>
+                <div>
+                  <dt>Memory Status</dt>
+                  <dd>not memory retrieval</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="debug-room provider-error-guide" aria-labelledby="provider-error-guide-title">
+              <div class="panel-heading">
+                <h2 id="provider-error-guide-title">Provider Error Guide</h2>
+                <p>How to read the sanitized Last Chat Debug summary. This guide does not change retry or provider behavior.</p>
+              </div>
+              <dl class="guide-list">
+                <div>
+                  <dt>429 / RESOURCE_EXHAUSTED</dt>
+                  <dd>Usually quota or rate-limit related. Pause instead of repeatedly retrying.</dd>
+                </div>
+                <div>
+                  <dt>503 / unavailable or overloaded</dt>
+                  <dd>The provider may be temporarily unavailable, overloaded, or wrapping a lower-level error as 503.</dd>
+                </div>
+                <div>
+                  <dt>externalApiCalled</dt>
+                  <dd>Shows whether this request actually attempted an external provider call. If false, it is usually mock, disabled, or dry-run mode.</dd>
+                </div>
+                <div>
+                  <dt>Retry</dt>
+                  <dd>Use only for temporary errors. The app does not auto-retry, which avoids extra provider calls.</dd>
+                </div>
+                <div>
+                  <dt>Sanitized debug</dt>
+                  <dd>Last Chat Debug should show only sanitized error details. It should not show API keys, tokens, or secrets.</dd>
+                </div>
+                <div>
+                  <dt>Invalid selected model / 400</dt>
+                  <dd>The selectedModelId is not in the server allowlist. The server rejects it and does not call an external provider.</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="debug-room last-chat-debug" aria-labelledby="last-chat-debug-title">
+              <div class="panel-heading">
+                <h2 id="last-chat-debug-title">Last Chat Debug</h2>
+                <p>Sanitized summary of the latest /api/chat response. Secrets are not displayed.</p>
+              </div>
+              <dl class="debug-grid compact-debug-grid model-validation-summary" aria-label="Model validation summary">
+                <div>
+                  <dt>Selected Model</dt>
+                  <dd id="lastDebugSelectedModel">none</dd>
+                </div>
+                <div>
+                  <dt>Actual Model Used</dt>
+                  <dd id="lastDebugActualModel">none</dd>
+                </div>
+                <div>
+                  <dt>Model Source</dt>
+                  <dd id="lastDebugModelSource">none</dd>
+                </div>
+                <div>
+                  <dt>Selection Valid</dt>
+                  <dd id="lastDebugSelectionValid">unknown</dd>
+                </div>
+                <div>
+                  <dt>External API Called</dt>
+                  <dd id="lastDebugExternalApiCalled">unknown</dd>
+                </div>
+              </dl>
+              <pre id="lastChatDebug">No chat response yet.</pre>
+            </section>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
